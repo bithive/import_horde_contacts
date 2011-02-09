@@ -1,0 +1,11 @@
+OVERVIEW
+
+This plugin will import contacts from Turba to Roundcube on login.  By default
+it will skip any user who already has contacts in Roundcube.
+
+USAGE
+
+- Make sure you have installed the necessary PDO modules for your database.
+- Place the import_horde_contacts directory in the Roundcube plugins/ directory.
+- Edit config.inc.php
+- Log in and see your contacts from Turba.
