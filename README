@@ -5,7 +5,13 @@ it will skip any user who already has contacts in Roundcube.
 
 USAGE
 
-- Make sure you have installed the necessary PDO modules for your database.
-- Place the import_horde_contacts directory in the Roundcube plugins/ directory.
-- Edit config.inc.php
-- Log in and see your contacts from Turba.
+- Make sure you have installed the necessary PDO modules for your database
+
+- Place the import_horde_contacts directory in the Roundcube plugins/ directory
+
+- Enable the plugin in config/main.inc.php
+
+- Add your Horde database credentials to config/main.inc.php
+  (see import_horde_contacts.php for example)
+
+- Log in and see your contacts from Turba

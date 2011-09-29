@@ -4,13 +4,22 @@
  *
  * Populates a new user's contacts with entries from Horde (Turba).
  *
- * @version 1.0
+ * Users with contacts already in Roundcube are skipped.
+ *
+ * You must configure your Horde database credentials in main.inc.php:
+ *
+ *  $rcmail_config['horde_dsn']  = 'pgsql:host=db.example.com;dbname=horde';
+ *  $rcmail_config['horde_user'] = 'horde';
+ *  $rcmail_config['horde_pass'] = 'password';
+ *
+ * @version 1.1
  * @author Jason Meinzer
  *
  */
 class import_horde_contacts extends rcube_plugin
 {
     public $task = 'login';
+    private $log = 'import_horde';
 
     function init()
     {
@@ -20,42 +29,46 @@ class import_horde_contacts extends rcube_plugin
     function fetch_turba_objects()
     {
         $this->rc = rcmail::get_instance();
-	$contacts = $this->rc->get_address_book(null, true);
-	$this->load_config();
+        $contacts = $this->rc->get_address_book(null, true);
+        $this->load_config();
 
-	if($contacts->count()->count > 0) return true; // exit early if user already has contacts
+        if($contacts->count()->count > 0) return true; // exit early if user already has contacts
 
-	$db_dsn  = $this->rc->config->get('import_horde_contacts_dsn');
-	$db_user = $this->rc->config->get('import_horde_contacts_user');
-	$db_pass = $this->rc->config->get('import_horde_contacts_pass');
+        $db_dsn  = $this->rc->config->get('horde_dsn');
+        $db_user = $this->rc->config->get('horde_user');
+        $db_pass = $this->rc->config->get('horde_pass');
 
-	try {
-		$db = new PDO($db_dsn, $db_user, $db_pass);
-	} catch(PDOException $e) {
-		return false;
-	}
+        try {
+            $db = new PDO($db_dsn, $db_user, $db_pass);
+        } catch(PDOException $e) {
+            return false;
+        }
 
-	$sth = $db->prepare('select object_firstname, object_lastname, object_email from turba_objects where owner_id = :uid');
-	$uid = explode('@', $this->rc->user->get_username());
+        $sth = $db->prepare('select object_firstname, object_lastname, object_email from turba_objects where owner_id = :uid');
+        $uid = explode('@', $this->rc->user->get_username());
         $uid = $uid[0];
-	$sth->bindParam(':uid', $uid);
-	$sth->execute();
+        $sth->bindParam(':uid', $uid);
+        $sth->execute();
 
-	$result = $sth->fetchAll(PDO::FETCH_ASSOC);
-	foreach($result as $turba_object) {
-		$rec = array(
-			'email'     => $turba_object['object_email'],
-			'firstname' => $turba_object['object_firstname'],
-			'surname'   => $turba_object['object_lastname']
-                );
+        $result = $sth->fetchAll(PDO::FETCH_ASSOC);
 
-		if (check_email(idn_to_ascii($rec['email']))) {
-			$rec['email'] = idn_to_utf8($rec['email']);
-			$contacts->insert($rec, true);
-		}
-	}
+        $count = 0;
+        foreach($result as $turba_object) {
+            $record = array(
+                'email'     => $turba_object['object_email'],
+                'firstname' => $turba_object['object_firstname'],
+                'surname'   => $turba_object['object_lastname']
+            );
 
-	return true;
+            if (check_email(idn_to_ascii($rec['email']))) {
+                $rec['email'] = idn_to_utf8($rec['email']);
+                $contacts->insert($rec, true);
+                $count++;
+            }
+        }
+
+        write_log($log, "Imported $count Horde contacts for $uid");
+        return true;
     }
 }
 ?>
