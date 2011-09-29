@@ -60,9 +60,9 @@ class import_horde_contacts extends rcube_plugin
                 'surname'   => $turba_object['object_lastname']
             );
 
-            if (check_email(idn_to_ascii($rec['email']))) {
-                $rec['email'] = idn_to_utf8($rec['email']);
-                $contacts->insert($rec, true);
+            if (check_email(idn_to_ascii($record['email']))) {
+                $record['email'] = idn_to_utf8($record['email']);
+                $contacts->insert($record, true);
                 $count++;
             }
         }
