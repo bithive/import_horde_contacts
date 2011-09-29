@@ -12,6 +12,8 @@
  *  $rcmail_config['horde_user'] = 'horde';
  *  $rcmail_config['horde_pass'] = 'password';
  *
+ * See also: https://github.com/bithive/import_horde_identities
+ * 
  * @version 1.1
  * @author Jason Meinzer
  *
