@@ -47,8 +47,14 @@ class import_horde_contacts extends rcube_plugin
         }
 
         $sth = $db->prepare('select object_firstname, object_lastname, object_email from turba_objects where owner_id = :uid');
-        $uid = explode('@', $this->rc->user->get_username());
-        $uid = $uid[0];
+        
+        $uid = $this->rc->user->get_username();
+        
+        if($this->rc->config->get('horde_has_at') !== true)
+        {
+            list($uid) = explode('@', $uid);
+        }
+        
         $sth->bindParam(':uid', $uid);
         $sth->execute();
 
