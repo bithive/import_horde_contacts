@@ -21,7 +21,6 @@
 class import_horde_contacts extends rcube_plugin
 {
     public $task = 'login';
-    private $log = 'import_horde';
 
     function init()
     {
@@ -75,7 +74,7 @@ class import_horde_contacts extends rcube_plugin
             }
         }
 
-        write_log($log, "Imported $count Horde contacts for $uid");
+        write_log('import_horde_contacts', "Imported $count Horde contacts for $uid");
         return true;
     }
 }
